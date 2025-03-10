@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from app.config import Config
 
 # Load environment variables form .env file
 load_dotenv()
@@ -17,10 +18,8 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
 
-    # Configurations
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/anno1800_tracker')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default_secret_key') # Change this in production!
+    # Load configuration
+    app.config.from_object(Config)
 
     # Initialize extensions
     db.init_app(app)
@@ -29,6 +28,7 @@ def create_app():
 
     # Import models AFTER initializing db
     from app.models import TokenBlocklist
+
     # Register routes
     from app.routes import api_bp
     app.register_blueprint(api_bp)
